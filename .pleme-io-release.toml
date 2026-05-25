@@ -1,0 +1,5 @@
+[bump]
+default-type = "patch"
+
+[publish]
+no-verify = true

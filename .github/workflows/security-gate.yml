@@ -1,0 +1,13 @@
+name: security-gate
+# Generated from caixa source. Edit caixa, re-render.
+
+on:
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 6 * * 1'
+
+jobs:
+  gate:
+    uses: pleme-io/substrate/.github/workflows/security-gate.yml@main
+    secrets: inherit

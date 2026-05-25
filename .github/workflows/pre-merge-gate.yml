@@ -1,0 +1,11 @@
+name: pre-merge-gate
+# Generated from caixa source. Edit caixa, re-render.
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  gate:
+    uses: pleme-io/substrate/.github/workflows/pre-merge-gate.yml@main
+    secrets: inherit
