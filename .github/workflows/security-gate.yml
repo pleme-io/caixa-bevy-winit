@@ -6,8 +6,15 @@ on:
     branches: [main]
   schedule:
     - cron: '0 6 * * 1'
+  workflow_dispatch:
 
 jobs:
   gate:
     uses: pleme-io/substrate/.github/workflows/security-gate.yml@main
+    with:
+      # caixa packages are vendored upstream mirrors — they carry their
+      # UPSTREAM license headers, not pleme-io SPDX headers, so the SPDX
+      # header sweep does not apply (it fails on every file). Dependency
+      # vuln-audit + SBOM generation still run.
+      check-license-headers: "false"
     secrets: inherit
