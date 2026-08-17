@@ -41,6 +41,38 @@ Two independent reasons the workflow cannot be correct here:
    the bumper about pre-release strings, which would fix nothing. Reason 2
    is unaffected and is the one that actually decides this.
 
+   **Corrected again 2026-08-17 — "removing those two lines" fixes the BUMP,
+   not the repo, and reading it as the latter is a dead end.** Measured: with
+   the inheritance deleted, `cargo metadata --no-deps` does succeed, but
+   `cargo update` — which `cargo audit` runs, so `security-gate` needs it —
+   then fails on the next thing down:
+
+   ```
+   Unable to update /…/bevy_platform
+   failed to read `/…/bevy_platform/Cargo.toml`: No such file or directory
+   ```
+
+   This crate reaches its siblings by `path = "../<crate>"`, and a lone
+   extracted member has no siblings. Across the 24 `caixa-bevy-*` repos those
+   paths name **36 distinct crates, 17 of which were never absorbed at all** —
+   and the names would still not line up if they had been, since the manifests
+   say `../bevy_app` while the repo is `caixa-bevy-app`. So the dependency
+   CLOSURE is what is missing, not two lines of manifest, and no per-repo edit
+   reaches it.
+
+   Consequence for this file: reason 2 (a fork does not mint its own version)
+   is still the reason `auto-release` stays retired, but it is no longer the
+   only thing deciding it — this repo cannot run ANY cargo-based gate,
+   `security-gate` included, and that is a property of the absorption
+   granularity rather than of any workflow.
+
+   The class is now refused at its source: `pleme-doc-gen` detects a
+   `rust-workspace-member` and will not scaffold one
+   (`pleme-doc-gen@3062bee`). The remedy for what already exists is
+   re-absorbing bevy as ONE `rust-workspace` caixa, where root and siblings
+   are all present and the unmodified upstream bytes are already correct.
+   Full receipt: `pleme-io/CLAUDE.md` → `docs/caixa-absorption-granularity.md`.
+
 2. **It should not succeed.** A fork follows the version of the upstream it
    tracks; it does not mint its own. Bumping would actively diverge this
    vendored copy from upstream. And with `publish = false`, auto-release has
